@@ -8,5 +8,61 @@
     "offer_id": "one_category",
     "timestamp": "2025-04-30T11:21:41.653045",
     "category": "politics"
+  },
+  "c2e7b0d1-271f-4850-92c8-471f8cccd23f": {
+    "offer_id": "one_category",
+    "timestamp": "2025-04-30T15:16:09.158760",
+    "paypal_order_id": "533385317M929271M",
+    "category": "politics"
+  },
+  "a2e7b0d1-271f-4850-92c8-471f8cccd23f": {
+    "offer_id": "one_category",
+    "timestamp": "2025-04-30T15:25:56.393842",
+    "paypal_order_id": "0P083474RD033745G"
+  },
+  "f2e7b0d1-271f-4850-92c8-471f8cccd23f": {
+    "offer_id": "all_categories",
+    "timestamp": "2025-04-30T15:26:27.697583",
+    "paypal_order_id": "8AS28762HB6862723"
+  },
+  "1f13140e-17df-446a-ba8a-169eca761fe7": {
+    "offer_id": "all_categories",
+    "timestamp": "2025-04-30T15:52:04.884655",
+    "paypal_order_id": "56Y69250EL9672923"
+  },
+  "ae387225-a736-47e4-b4f7-470bb36527ab": {
+    "offer_id": "one_category",
+    "timestamp": "2025-04-30T15:53:13.409338",
+    "paypal_order_id": "5CH21232US762533L",
+    "category": "economy"
+  },
+  "c8b54ee3-b3e7-4db8-bae9-f36ccd622236": {
+    "offer_id": "one_category",
+    "timestamp": "2025-04-30T15:55:48.815538",
+    "paypal_order_id": "3HP53632PL712384E",
+    "category": "economy"
+  },
+  "ca99337f-c87b-48cb-a94e-7c9c7ebdb1d7": {
+    "offer_id": "one_category",
+    "timestamp": "2025-04-30T16:05:40.517955",
+    "paypal_order_id": "67V578525T2251722",
+    "category": "economy"
+  },
+  "eea5022d-5e7b-487e-911b-3935b7d8d1a9": {
+    "offer_id": "all_categories",
+    "timestamp": "2025-04-30T16:37:22.122353",
+    "paypal_order_id": "47P66667UT307771V"
+  },
+  "6a4205f0-6dd8-49b5-97a1-cf52b47cd04c": {
+    "offer_id": "one_category",
+    "timestamp": "2025-04-30T16:38:28.852261",
+    "paypal_order_id": "5GU19966UR330354M",
+    "category": "politics"
+  },
+  "849113ae-cf42-4a4c-a8de-ee6d77c8164a": {
+    "offer_id": "one_category",
+    "timestamp": "2025-04-30T16:44:12.790220",
+    "paypal_order_id": "2D753932NJ354334K",
+    "category": "politics"
   }
 }

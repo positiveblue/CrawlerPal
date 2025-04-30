@@ -8,6 +8,12 @@ import uuid
 import json # Import json
 from pathlib import Path # Import Path
 from faker import Faker
+import httpx # Add httpx import
+import os # Import os
+from dotenv import load_dotenv # Import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = FastAPI()
 
@@ -16,6 +22,13 @@ payments_data: Dict[str, Dict[str, Any]] = {}
 
 # --- Constants ---
 PAYMENTS_DB_FILE = Path("payments_db.json")
+PAYPAL_API_URL = "https://api-m.sandbox.paypal.com/v2/checkout/orders" # Use v2/checkout/orders for creating orders
+# Get token from environment variable
+PAYPAL_ACCESS_TOKEN = os.getenv("PAYPAL_ACCESS_TOKEN") 
+
+# Check if the token was loaded
+if not PAYPAL_ACCESS_TOKEN:
+    raise ValueError("PAYPAL_ACCESS_TOKEN not found in environment variables. Please set it in the .env file.")
 
 # --- Models ---
 class PaymentRequest(BaseModel):
@@ -282,27 +295,111 @@ async def process_payment_request(payment_request: PaymentRequest):
     global payments_data # Ensure we modify the global variable
     print(f"Received payment request: {payment_request.dict()}")
 
-    # TODO: Implement actual payment processing logic here
-    payment_successful = True # Simulate successful payment
+    # 1. Determine amount based on offer_id
+    if payment_request.offer_id == "one_category":
+        amount_value = "0.01"
+    elif payment_request.offer_id == "all_categories":
+        amount_value = "0.05"
+    else:
+        raise HTTPException(status_code=400, detail=f"Invalid offer_id: {payment_request.offer_id}")
 
+    # 2. Construct PayPal request body
+    # WARNING: Using hardcoded vault_id and customer id from the example.
+    # In a real application, these should be dynamically determined.
+    paypal_payload = {
+        "intent": "CAPTURE",
+        "purchase_units": [
+            {
+                "amount": {
+                    "currency_code": "USD",
+                    "value": amount_value,
+                    "breakdown": { # Optional breakdown
+                        "item_total": {
+                            "value": amount_value,
+                            "currency_code": "USD"
+                        }
+                    }
+                }
+                # You might need to add 'description' or 'items' here depending on PayPal requirements
+            }
+        ],
+        # WARNING: Assuming 'paypal' source and hardcoded IDs. Adapt as needed.
+        "payment_source": {
+             "paypal": {
+                 # NOTE: The example provided vault_id/customer attributes which might be for vaulting scenarios.
+                 # For a direct payment without vaulting, this structure might differ.
+                 # Let's comment out vaulting for a basic CAPTURE intent for now.
+                 # If using vaulting, ensure vault_id and customer.id are correct.
+                 "vault_id": "7m164080c5885500e",
+                 "attributes": {
+                     "customer": {
+                         "id": "jQBrFyQJTq"
+                     }
+                 }
+             }
+         }
+    }
+
+    # 3. Prepare headers for PayPal API
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {PAYPAL_ACCESS_TOKEN}",
+        # PayPal often requires a unique request ID for idempotency
+        "PayPal-Request-Id": str(uuid.uuid4())
+    }
+
+    # 4. Make the API call to PayPal
+    async with httpx.AsyncClient() as client:
+        try:
+            print(f"Sending request to PayPal: {PAYPAL_API_URL}")
+            print(f"Payload: {json.dumps(paypal_payload, indent=2)}") # Log payload for debugging
+            response = await client.post(PAYPAL_API_URL, headers=headers, json=paypal_payload)
+            response.raise_for_status() # Raises HTTPStatusError for 4xx/5xx responses
+            paypal_response_data = response.json()
+            print(f"PayPal response status: {response.status_code}")
+            print(f"PayPal response data: {json.dumps(paypal_response_data, indent=2)}") # Log response
+
+            # 5. Check PayPal response status (adjust based on actual PayPal API)
+            # Assuming a successful CAPTURE results in a specific status, e.g., 'COMPLETED'
+            if response.status_code in [200, 201] and paypal_response_data.get('status') == 'COMPLETED':
+                print("PayPal payment successful.")
+                payment_successful = True
+            else:
+                 print(f"PayPal payment not completed. Status: {paypal_response_data.get('status')}, Full Response: {paypal_response_data}")
+                 payment_successful = False
+
+        except httpx.HTTPStatusError as exc:
+            print(f"HTTP error occurred while calling PayPal: {exc}")
+            print(f"Response body: {exc.response.text}")
+            payment_successful = False
+            # Consider returning specific PayPal error details if available
+            raise HTTPException(status_code=exc.response.status_code, detail=f"PayPal API error: {exc.response.text}")
+        except Exception as e:
+            print(f"An unexpected error occurred during PayPal request: {e}")
+            payment_successful = False
+            raise HTTPException(status_code=500, detail="Internal server error during payment processing")
+
+    # 6. Update internal state if payment was successful
     if payment_successful:
-        # *** Update in-memory store first ***
         payment_details = {
             "offer_id": payment_request.offer_id,
-            "timestamp": datetime.datetime.now().isoformat() # Add timestamp for record
+            "timestamp": datetime.datetime.now().isoformat(), # Add timestamp for record
+            "paypal_order_id": paypal_response_data.get('id') # Store PayPal order ID
         }
+        
         if payment_request.category:
              payment_details["category"] = payment_request.category
-        
+
         payments_data[payment_request.payment_context_token] = payment_details
         print(f"In-memory payments data updated for token: {payment_request.payment_context_token}")
 
-        # *** Then, persist the entire updated store to disk ***
         save_payments_db(payments_data)
-        
+
         return {"message": "Payment successful", "bearer_token": payment_request.payment_context_token}
     else:
-        raise HTTPException(status_code=400, detail="Payment processing failed")
+        # Payment failed, raise appropriate error (already handled by exceptions above mostly)
+        # This is a fallback, exceptions should handle most failures.
+        raise HTTPException(status_code=400, detail="Payment processing failed with PayPal.")
 
 # --- Main Execution ---
 if __name__ == "__main__":
