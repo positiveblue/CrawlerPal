@@ -1,12 +1,26 @@
 {
-  "2e8312f0-a946-4a18-b6df-f1e33c0d8361": {
+
+  "872a3f58-4d92-4e44-abaa-24db4f60d2ec": {
     "offer_id": "one_category",
-    "timestamp": "2025-04-30T11:18:09.004254",
-    "category": "politics"
+    "category": "politics",
+    "timestamp": "2025-04-30T11:33:55.205386",
+    "payment_context_token": "2e8312f0-a946-4a18-b6df-f1e33c0d8361"
   },
-  "b2e7b0d1-271f-4850-92c8-471f8cccd23f": {
+  "8f20df06-bbc2-486e-b061-cdade57c3a96": {
     "offer_id": "one_category",
-    "timestamp": "2025-04-30T11:21:41.653045",
-    "category": "politics"
+    "timestamp": "2025-04-30T12:27:26.020428",
+    "payment_context_token": "5b6b7550-0a8a-4afd-9785-31c21f16a8e2"
+  },
+  "b7325ab6-cf47-476b-9b23-e0062cab1834": {
+    "offer_id": "one_category",
+    "category": "politics",
+    "timestamp": "2025-04-30T12:29:31.420626",
+    "payment_context_token": "2e8312f0-a946-4a18-b6df-f1e33c0d8361"
+  },
+  "43161c75-9970-4a33-9a1b-85665f1a87e5": {
+    "offer_id": "one_category",
+    "category": "politics",
+    "timestamp": "2025-04-30T12:29:34.227731",
+    "payment_context_token": "5b6b7550-0a8a-4afd-9785-31c21f16a8e2"
   }
 }
